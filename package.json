@@ -4,13 +4,12 @@
   "description": "Web para donaciones y ranking de usuarios",
   "main": "index.html",
   "scripts": {
-    "build": "echo 'Build completed'"
+    "build": "npm install"
   },
   "dependencies": {
     "stripe": "^14.10.0",
     "firebase-admin": "^12.0.0"
   },
-  "devDependencies": {},
   "engines": {
     "node": "18"
   }
