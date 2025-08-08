@@ -1,9 +1,17 @@
 {
-  "name": "mas-rico-internet",
+  "name": "el-mas-rico-de-internet",
   "version": "1.0.0",
-  "description": "El más rico de internet con pagos reales",
+  "description": "Web para donaciones y ranking de usuarios",
+  "main": "index.html",
+  "scripts": {
+    "build": "echo 'Build completed'"
+  },
   "dependencies": {
-    "stripe": "^14.21.0",
+    "stripe": "^14.10.0",
     "firebase-admin": "^12.0.0"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": "18"
   }
 }
