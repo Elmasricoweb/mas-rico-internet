@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Más Rico de Internet - Con Auth</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .crown {
+            font-size: 4em;
+            margin: 20px 0;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .auth-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 10px;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .auth-tab.active {
+            color: white;
+            border-bottom-color: #ffd700;
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #ffd700;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(45deg, #ffd700, #ffed4a);
+            color: #333;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: none;
+        }
+
+        .game-container.show {
+            display: block;
+        }
+
+        .current-king {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .king-amount {
+            font-size: 3em;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin: 10px 0;
+        }
+
+        .user-info {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .user-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .stat {
+            text-align: center;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .bid-section {
+            text-align: center;
+        }
+
+        .bid-input {
+            width: 200px;
+            margin: 0 auto 20px;
+            text-align: center;
+            font-size: 1.2em;
+        }
+
+        .error-message {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ffcccb;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            display: none;
+        }
+
+        .success-message {
+            background: rgba(0, 255, 0, 0.2);
+            color: #90EE90;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            display: none;
+        }
+
+        .logout-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <button class="logout-btn" id="logoutBtn" style="display: none;">Cerrar Sesión</button>
+    
+    <div class="container">
+        <div class="header">
+            <h1>👑 El Más Rico de Internet 👑</h1>
+            <div class="crown">💎</div>
+            <p>¡Conviértete en el rey de internet con tu donación!</p>
+        </div>
+
+        <!-- AUTH CONTAINER -->
+        <div class="auth-container" id="authContainer">
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="loginTab">Iniciar Sesión</button>
+                <button class="auth-tab" id="registerTab">Registrarse</button>
+            </div>
+
+            <!-- LOGIN FORM -->
+            <div class="auth-form active" id="loginForm">
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="email" id="loginEmail" placeholder="tu@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Contraseña:</label>
+                    <input type="password" id="loginPassword" placeholder="Tu contraseña" required>
+                </div>
+                <button class="btn" id="loginBtn">Iniciar Sesión</button>
+                <div class="error-message" id="loginError"></div>
+            </div>
+
+            <!-- REGISTER FORM -->
+            <div class="auth-form" id="registerForm">
+                <div class="form-group">
+                    <label>Nombre de usuario:</label>
+                    <input type="text" id="registerUsername" placeholder="Tu nombre de usuario" required>
+                </div>
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="email" id="registerEmail" placeholder="tu@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Contraseña:</label>
+                    <input type="password" id="registerPassword" placeholder="Mínimo 6 caracteres" required>
+                </div>
+                <div class="form-group">
+                    <label>Confirmar contraseña:</label>
+                    <input type="password" id="registerPasswordConfirm" placeholder="Confirma tu contraseña" required>
+                </div>
+                <button class="btn" id="registerBtn">Registrarse</button>
+                <div class="error-message" id="registerError"></div>
+                <div class="success-message" id="registerSuccess"></div>
+            </div>
+        </div>
+
+        <!-- GAME CONTAINER -->
+        <div class="game-container" id="gameContainer">
+            <!-- User Info -->
+            <div class="user-info">
+                <h3>¡Bienvenido, <span id="userDisplayName"></span>!</h3>
+                <div class="user-stats">
+                    <div class="stat">
+                        <div class="stat-value" id="userBalance">$0.00</div>
+                        <div>Mi Saldo</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="userRank">#-</div>
+                        <div>Mi Posición</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Current King -->
+            <div class="current-king">
+                <h2>👑 Rey Actual 👑</h2>
+                <div class="king-amount" id="currentAmount">$0.00</div>
+                <p>Reinando: <strong id="currentKing">Nadie</strong></p>
+            </div>
+
+            <!-- Bid Section -->
+            <div class="bid-section">
+                <h3>¡Destronalo y conviértete en Rey!</h3>
+                <p id="bidInfo">Necesitas pagar: <strong id="requiredAmount">$0.00</strong></p>
+                <input type="number" class="form-group input bid-input" id="bidAmount" 
+                       placeholder="0.00" step="0.01" min="0.01">
+                <br>
+                <button class="btn" id="bidBtn">💰 Hacer Puja</button>
+                <div class="error-message" id="bidError"></div>
+                <div class="success-message" id="bidSuccess"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://js.stripe.com/v3/"></script>
+
+    <script>
+        // Firebase Configuration 
+        const firebaseConfig = {
+            apiKey: "AIzaSyDloRu4Q_n4YCc8SKAxuso_KMZFVlyyzfc",
+            authDomain: "el-mas-rico-del-mundo.firebaseapp.com",
+            projectId: "el-mas-rico-del-mundo",
+            storageBucket: "el-mas-rico-del-mundo.firebasestorage.app",
+            messagingSenderId: "84603690285",
+            appId: "1:84603690285:web:8810eaedfbc96e987607a4",
+            measurementId: "G-TBG41VSSWG"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Initialize Stripe
+        const stripe = Stripe('pk_test_51RgLIJPZIW7olDUeBJHnfMejCf1tLAAWIqF8JnjKsBK70tVkVTL0UpLEm6vmixsZQMye1v7CxCxnL2S0zsUvxEkm00S5Flfypr');
+
+        // Global variables
+        let currentUser = null;
+        let currentKingData = null;
+        let currentUserData = null;
+
+        // DOM Elements
+        const authContainer = document.getElementById('authContainer');
+        const gameContainer = document.getElementById('gameContainer');
+        const loginTab = document.getElementById('loginTab');
+        const registerTab = document.getElementById('registerTab');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        // Auth Form Elements
+        const loginBtn = document.getElementById('loginBtn');
+        const registerBtn = document.getElementById('registerBtn');
+        const loginError = document.getElementById('loginError');
+        const registerError = document.getElementById('registerError');
+        const registerSuccess = document.getElementById('registerSuccess');
+
+        // Game Elements
+        const userDisplayName = document.getElementById('userDisplayName');
+        const userBalance = document.getElementById('userBalance');
+        const userRank = document.getElementById('userRank');
+        const currentAmount = document.getElementById('currentAmount');
+        const currentKing = document.getElementById('currentKing');
+        const bidAmount = document.getElementById('bidAmount');
+        const bidBtn = document.getElementById('bidBtn');
+        const bidInfo = document.getElementById('bidInfo');
+        const requiredAmount = document.getElementById('requiredAmount');
+        const bidError = document.getElementById('bidError');
+        const bidSuccess = document.getElementById('bidSuccess');
+
+        // Utility Functions
+        function showError(element, message) {
+            element.textContent = message;
+            element.style.display = 'block';
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, 5000);
+        }
+
+        function showSuccess(element, message) {
+            element.textContent = message;
+            element.style.display = 'block';
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, 5000);
+        }
+
+        // Auth Tab Switching
+        loginTab.addEventListener('click', () => {
+            loginTab.classList.add('active');
+            registerTab.classList.remove('active');
+            loginForm.classList.add('active');
+            registerForm.classList.remove('active');
+        });
+
+        registerTab.addEventListener('click', () => {
+            registerTab.classList.add('active');
+            loginTab.classList.remove('active');
+            registerForm.classList.add('active');
+            loginForm.classList.remove('active');
+        });
+
+        // Authentication Functions
+        async function loginUser(email, password) {
+            try {
+                loginBtn.disabled = true;
+                loginBtn.textContent = 'Iniciando...';
+                
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                console.log('Usuario logueado:', userCredential.user);
+                
+            } catch (error) {
+                console.error('Error en login:', error);
+                let errorMessage = 'Error al iniciar sesión';
+                
+                switch (error.code) {
+                    case 'auth/user-not-found':
+                        errorMessage = 'Usuario no encontrado';
+                        break;
+                    case 'auth/wrong-password':
+                        errorMessage = 'Contraseña incorrecta';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = 'Email inválido';
+                        break;
+                }
+                
+                showError(loginError, errorMessage);
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Iniciar Sesión';
+            }
+        }
+
+        async function registerUser(username, email, password, passwordConfirm) {
+            // Validaciones
+            if (password !== passwordConfirm) {
+                showError(registerError, 'Las contraseñas no coinciden');
+                return;
+            }
+
+            if (password.length < 6) {
+                showError(registerError, 'La contraseña debe tener al menos 6 caracteres');
+                return;
+            }
+
+            if (username.length < 3) {
+                showError(registerError, 'El nombre de usuario debe tener al menos 3 caracteres');
+                return;
+            }
+
+            try {
+                registerBtn.disabled = true;
+                registerBtn.textContent = 'Registrando...';
+
+                // Crear usuario en Firebase Auth
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+
+                // Crear documento del usuario en Firestore
+                await db.collection('users').doc(user.uid).set({
+                    username: username,
+                    email: email,
+                    totalInvested: 0,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    stats: {
+                        timesAsKing: 0,
+                        totalTimeAsKing: 0,
+                        longestReign: 0
+                    }
+                });
+
+                showSuccess(registerSuccess, '¡Registro exitoso! Iniciando sesión...');
+                
+            } catch (error) {
+                console.error('Error en registro:', error);
+                let errorMessage = 'Error al registrarse';
+                
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        errorMessage = 'Este email ya está registrado';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = 'Email inválido';
+                        break;
+                    case 'auth/weak-password':
+                        errorMessage = 'Contraseña muy débil';
+                        break;
+                }
+                
+                showError(registerError, errorMessage);
+            } finally {
+                registerBtn.disabled = false;
+                registerBtn.textContent = 'Registrarse';
+            }
+        }
+
+        // Event Listeners
+        loginBtn.addEventListener('click', () => {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (email && password) {
+                loginUser(email, password);
+            } else {
+                showError(loginError, 'Por favor completa todos los campos');
+            }
+        });
+
+        registerBtn.addEventListener('click', () => {
+            const username = document.getElementById('registerUsername').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const passwordConfirm = document.getElementById('registerPasswordConfirm').value;
+            
+            if (username && email && password && passwordConfirm) {
+                registerUser(username, email, password, passwordConfirm);
+            } else {
+                showError(registerError, 'Por favor completa todos los campos');
+            }
+        });
+
+        logoutBtn.addEventListener('click', () => {
+            auth.signOut();
+        });
+
+        // Firebase Auth State Observer
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                console.log('Usuario autenticado:', user);
+                currentUser = user;
+                
+                // Cargar datos del usuario
+                await loadUserData();
+                
+                // Mostrar interfaz del juego
+                authContainer.style.display = 'none';
+                gameContainer.classList.add('show');
+                logoutBtn.style.display = 'block';
+                
+                // Cargar datos del juego
+                await loadGameData();
+                
+            } else {
+                console.log('Usuario no autenticado');
+                currentUser = null;
+                currentUserData = null;
+                
+                // Mostrar interfaz de auth
+                authContainer.style.display = 'block';
+                gameContainer.classList.remove('show');
+                logoutBtn.style.display = 'none';
+            }
+        });
+
+        // Load User Data
+        async function loadUserData() {
+            if (!currentUser) return;
+            
+            try {
+                const userDoc = await db.collection('users').doc(currentUser.uid).get();
+                if (userDoc.exists) {
+                    currentUserData = userDoc.data();
+                    updateUserUI();
+                } else {
+                    console.error('Documento de usuario no encontrado');
+                }
+            } catch (error) {
+                console.error('Error cargando datos del usuario:', error);
+            }
+        }
+
+        // Load Game Data
+        async function loadGameData() {
+            try {
+                const kingDoc = await db.collection('current').doc('king').get();
+                if (kingDoc.exists) {
+                    currentKingData = kingDoc.data();
+                    updateGameUI();
+                } else {
+                    // Inicializar rey por defecto
+                    currentKingData = {
+                        username: 'ReyInicial',
+                        amount: 10.00,
+                        userId: 'default'
+                    };
+                    updateGameUI();
+                }
+            } catch (error) {
+                console.error('Error cargando datos del juego:', error);
+            }
+        }
+
+        // Update UI Functions
+        function updateUserUI() {
+            if (!currentUserData) return;
+            
+            userDisplayName.textContent = currentUserData.username;
+            userBalance.textContent = `$${currentUserData.totalInvested.toFixed(2)}`;
+            // userRank se actualizará en futuras versiones
+        }
+
+        function updateGameUI() {
+            if (!currentKingData) return;
+            
+            currentAmount.textContent = `$${currentKingData.amount.toFixed(2)}`;
+            currentKing.textContent = currentKingData.username;
+            
+            // Calcular cantidad requerida para ser rey
+            const userInvested = currentUserData ? currentUserData.totalInvested : 0;
+            const requiredTotal = currentKingData.amount + 0.01; // Mínimo $0.01 más que el rey actual
+            const requiredToPay = Math.max(0, requiredTotal - userInvested);
+            
+            requiredAmount.textContent = `$${requiredToPay.toFixed(2)}`;
+            bidInfo.innerHTML = `Tu saldo: $${userInvested.toFixed(2)} - Necesitas pagar: <strong>$${requiredToPay.toFixed(2)}</strong>`;
+            
+            bidAmount.min = requiredToPay.toFixed(2);
+            bidAmount.placeholder = requiredToPay.toFixed(2);
+        }
+
+        // Bid Function (placeholder for now)
+        bidBtn.addEventListener('click', async () => {
+            const amount = parseFloat(bidAmount.value);
+            const userInvested = currentUserData ? currentUserData.totalInvested : 0;
+            const requiredTotal = currentKingData.amount + 0.01;
+            const requiredToPay = Math.max(0, requiredTotal - userInvested);
+            
+            if (!amount || amount < requiredToPay) {
+                showError(bidError, `Debes pujar al menos $${requiredToPay.toFixed(2)}`);
+                return;
+            }
+            
+            // TODO: Implementar lógica de pago con Stripe
+            showSuccess(bidSuccess, '¡Función de pago próximamente disponible!');
+        });
+
+        // Real-time listener for game state
+        db.collection('current').doc('king').onSnapshot((doc) => {
+            if (doc.exists && currentUser) {
+                currentKingData = doc.data();
+                updateGameUI();
+            }
+        });
+
+        // Enter key listeners
+        document.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                if (loginForm.classList.contains('active')) {
+                    loginBtn.click();
+                } else if (registerForm.classList.contains('active')) {
+                    registerBtn.click();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
