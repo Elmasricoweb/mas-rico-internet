@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Más Rico de Internet</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .crown {
+            font-size: 4em;
+            margin: 20px 0;
+            animation: float 3s ease-in-out infinite;
+            position: relative;
+            display: inline-block;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Crown destruction animation */
+        @keyframes crownDestroy {
+            0% { transform: scale(1) rotate(0deg); opacity: 1; }
+            30% { transform: scale(1.1) rotate(-5deg); }
+            60% { transform: scale(0.8) rotate(5deg); }
+            100% { transform: scale(0) rotate(15deg); opacity: 0; }
+        }
+
+        /* Crown emergence animation */
+        @keyframes crownEmerge {
+            0% { 
+                transform: scale(0) translateY(30px); 
+                opacity: 0;
+                filter: brightness(0);
+            }
+            50% { 
+                transform: scale(1.2) translateY(-10px); 
+                opacity: 0.8;
+                filter: brightness(2) drop-shadow(0 0 20px #ffd700);
+            }
+            100% { 
+                transform: scale(1) translateY(0); 
+                opacity: 1;
+                filter: brightness(1) drop-shadow(0 0 10px #ffd700);
+            }
+        }
+
+        .crown.destroying {
+            animation: crownDestroy 0.8s ease-in-out forwards;
+        }
+
+        .crown.emerging {
+            animation: crownEmerge 1.2s ease-out forwards;
+        }
+
+        /* Lightning effect */
+        .lightning-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: 
+                radial-gradient(ellipse at center, rgba(255,255,255,0.9) 0%, rgba(255,215,0,0.7) 30%, transparent 70%);
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        @keyframes lightning {
+            0% { opacity: 0; }
+            10% { opacity: 1; }
+            15% { opacity: 0; }
+            25% { opacity: 1; }
+            30% { opacity: 0; }
+            100% { opacity: 0; }
+        }
+
+        .lightning-overlay.active {
+            animation: lightning 0.6s ease-in-out;
+        }
+
+        /* Coronation overlay - FIXED */
+        .coronation-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(45deg, rgba(25,25,112,0.95), rgba(75,0,130,0.95));
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+
+        .coronation-overlay.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: all;
+            animation: coronationAppear 3s ease-in-out forwards;
+        }
+
+        @keyframes coronationAppear {
+            0% { opacity: 0; transform: scale(0.8); }
+            15% { opacity: 1; transform: scale(1); }
+            85% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(1.1); visibility: hidden; }
+        }
+
+        .coronation-content {
+            text-align: center;
+            transform: translateY(50px);
+            opacity: 0;
+            animation: coronationContent 3s ease-out forwards;
+        }
+
+        @keyframes coronationContent {
+            0% { transform: translateY(50px); opacity: 0; }
+            15% { transform: translateY(0); opacity: 1; }
+            85% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-30px); opacity: 0; }
+        }
+
+        .coronation-crown {
+            font-size: 8em;
+            margin-bottom: 20px;
+            animation: crownSpin 3s ease-out forwards;
+            filter: drop-shadow(0 0 30px #ffd700);
+        }
+
+        @keyframes crownSpin {
+            0% { transform: rotate(0deg) scale(0.5); opacity: 0; }
+            15% { transform: rotate(360deg) scale(1.2); opacity: 1; }
+            85% { transform: rotate(720deg) scale(1); opacity: 1; }
+            100% { transform: rotate(1080deg) scale(0.8); opacity: 0; }
+        }
+
+        .coronation-title {
+            font-size: 3em;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.7);
+            margin-bottom: 10px;
+        }
+
+        .coronation-username {
+            font-size: 2.5em;
+            color: white;
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.7);
+            margin-bottom: 20px;
+        }
+
+        .coronation-amount {
+            font-size: 2em;
+            color: #90EE90;
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.7);
+        }
+
+        /* Golden particles */
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: #ffd700;
+            border-radius: 50%;
+            opacity: 0;
+            box-shadow: 0 0 10px #ffd700;
+        }
+
+        @keyframes particleFloat {
+            0% { 
+                opacity: 1; 
+                transform: translateY(0) scale(1); 
+            }
+            100% { 
+                opacity: 0; 
+                transform: translateY(-120px) scale(0.3); 
+            }
+        }
+
+        .particle.active {
+            animation: particleFloat 3s ease-out forwards;
+        }
+
+        .auth-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 10px;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .auth-tab.active {
+            color: white;
+            border-bottom-color: #ffd700;
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #ffd700;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(45deg, #ffd700, #ffed4a);
+            color: #333;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: none;
+            position: relative;
+        }
+
+        .game-container.show {
+            display: block;
+        }
+
+        .current-king {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .king-amount {
+            font-size: 3em;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin: 10px 0;
+        }
+
+        .user-info {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .user-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .stat {
+            text-align: center;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .bid-section {
+            text-align: center;
+        }
+
+        .bid-input {
+            width: 200px;
+            margin: 0 auto 20px;
+            text-align: center;
+            font-size: 1.2em;
+        }
+
+        .error-message {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ffcccb;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            display: none;
+        }
+
+        .success-message {
+            background: rgba(0, 255, 0, 0.2);
+            color: #90EE90;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            display: none;
+        }
+
+        .logout-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .card-container {
+            margin: 20px 0;
+        }
+
+        .card-container label {
+            display: block;
+            margin-bottom: 10px;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: bold;
+        }
+
+        .card-element {
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            margin-bottom: 10px;
+        }
+
+        .card-element:focus {
+            border-color: #ffd700;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
+
+        .card-element--invalid {
+            border-color: #fa755a;
+        }
+
+        .card-element--webkit-autofill {
+            background-color: rgba(255, 255, 255, 0.1) !important;
+        }
+
+        /* Improved visual feedback */
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .user-info.king {
+            border: 2px solid #ffd700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+
+        .status-king {
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        .status-investor {
+            color: #90EE90;
+        }
+
+        .status-new {
+            color: #87CEEB;
+        }
+    </style>
+</head>
+<body>
+    <button class="logout-btn" id="logoutBtn" style="display: none;">Cerrar Sesión</button>
+    
+    <!-- Lightning overlay -->
+    <div class="lightning-overlay" id="lightningOverlay"></div>
+    
+    <!-- Coronation overlay -->
+    <div class="coronation-overlay" id="coronationOverlay">
+        <div class="coronation-content">
+            <div class="coronation-crown">👑</div>
+            <div class="coronation-title">¡NUEVO REY!</div>
+            <div class="coronation-username" id="coronationUsername">-</div>
+            <div class="coronation-amount" id="coronationAmount">$0.00</div>
+        </div>
+        <div class="particles" id="particles"></div>
+    </div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>👑 El Más Rico de Internet 👑</h1>
+            <div class="crown" id="mainCrown">💎</div>
+            <p>¡Conviértete en el rey de internet con tu donación!</p>
+        </div>
+
+        <!-- AUTH CONTAINER -->
+        <div class="auth-container" id="authContainer">
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="loginTab">Iniciar Sesión</button>
+                <button class="auth-tab" id="registerTab">Registrarse</button>
+            </div>
+
+            <!-- LOGIN FORM -->
+            <div class="auth-form active" id="loginForm">
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="email" id="loginEmail" placeholder="tu@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Contraseña:</label>
+                    <input type="password" id="loginPassword" placeholder="Tu contraseña" required>
+                </div>
+                <button class="btn" id="loginBtn">Iniciar Sesión</button>
+                <div class="error-message" id="loginError"></div>
+            </div>
+
+            <!-- REGISTER FORM -->
+            <div class="auth-form" id="registerForm">
+                <div class="form-group">
+                    <label>Nombre de usuario:</label>
+                    <input type="text" id="registerUsername" placeholder="Tu nombre de usuario" required>
+                </div>
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="email" id="registerEmail" placeholder="tu@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Contraseña:</label>
+                    <input type="password" id="registerPassword" placeholder="Mínimo 6 caracteres" required>
+                </div>
+                <div class="form-group">
+                    <label>Confirmar contraseña:</label>
+                    <input type="password" id="registerPasswordConfirm" placeholder="Confirma tu contraseña" required>
+                </div>
+                <button class="btn" id="registerBtn">Registrarse</button>
+                <div class="error-message" id="registerError"></div>
+                <div class="success-message" id="registerSuccess"></div>
+            </div>
+        </div>
+
+        <!-- GAME CONTAINER -->
+        <div class="game-container" id="gameContainer">
+            <!-- User Info -->
+            <div class="user-info" id="userInfoCard">
+                <h3>¡Bienvenido, <span id="userDisplayName"></span>!</h3>
+                <div class="user-stats">
+                    <div class="stat">
+                        <div class="stat-value" id="userBalance">$0.00</div>
+                        <div>Mi Inversión Total</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="userStatus">-</div>
+                        <div>Estado</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Current King -->
+            <div class="current-king">
+                <h2>👑 Rey Actual 👑</h2>
+                <div class="king-amount" id="currentAmount">$0.00</div>
+                <p>Reinando: <strong id="currentKing">Nadie</strong></p>
+            </div>
+
+            <!-- Bid Section -->
+            <div class="bid-section">
+                <h3 id="bidTitle">¡Destrónalo y conviértete en Rey!</h3>
+                <p id="bidInfo">Calculando...</p>
+                <input type="number" class="form-group input bid-input" id="bidAmount" 
+                       placeholder="0.00" step="0.01" min="0.01">
+                
+                <!-- Stripe Card Element -->
+                <div class="card-container">
+                    <label for="card-element">Tarjeta de crédito o débito</label>
+                    <div id="card-element" class="card-element">
+                        <!-- Stripe Elements will create form elements here -->
+                    </div>
+                    <div id="card-errors" role="alert" class="error-message"></div>
+                </div>
+                
+                <br>
+                <button class="btn" id="bidBtn">💰 Hacer Puja</button>
+                <div class="error-message" id="bidError"></div>
+                <div class="success-message" id="bidSuccess"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://js.stripe.com/v3/"></script>
+
+    <script>
+        // Firebase Configuration 
+        const firebaseConfig = {
+            apiKey: "AIzaSyDloRu4Q_n4YCc8SKAxuso_KMZFVlyyzfc",
+            authDomain: "el-mas-rico-del-mundo.firebaseapp.com",
+            projectId: "el-mas-rico-del-mundo",
+            storageBucket: "el-mas-rico-del-mundo.firebasestorage.app",
+            messagingSenderId: "84603690285",
+            appId: "1:84603690285:web:8810eaedfbc96e987607a4",
+            measurementId: "G-TBG41VSSWG"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Initialize Stripe
+        const stripe = Stripe('pk_test_51RgLIJPZIW7olDUeBJHnfMejCf1tLAAWIqF8JnjKsBK70tVkVTL0UpLEm6vmixsZQMye1v7CxCxnL2S0zsUvxEkm00S5Flfypr');
+        const elements = stripe.elements();
+
+        // Create card element
+        const cardElement = elements.create('card', {
+            style: {
+                base: {
+                    fontSize: '16px',
+                    color: 'white',
+                    '::placeholder': {
+                        color: 'rgba(255, 255, 255, 0.6)',
+                    },
+                },
+                invalid: {
+                    color: '#fa755a',
+                    iconColor: '#fa755a'
+                }
+            }
+        });
+
+        // Global variables
+        let currentUser = null;
+        let currentKingData = null;
+        let currentUserData = null;
+        let previousKingId = null;
+
+        // DOM Elements
+        const authContainer = document.getElementById('authContainer');
+        const gameContainer = document.getElementById('gameContainer');
+        const loginTab = document.getElementById('loginTab');
+        const registerTab = document.getElementById('registerTab');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const userInfoCard = document.getElementById('userInfoCard');
+        const mainCrown = document.getElementById('mainCrown');
+        const lightningOverlay = document.getElementById('lightningOverlay');
+        const coronationOverlay = document.getElementById('coronationOverlay');
+        const coronationUsername = document.getElementById('coronationUsername');
+        const coronationAmount = document.getElementById('coronationAmount');
+        const particles = document.getElementById('particles');
+
+        // Auth Form Elements
+        const loginBtn = document.getElementById('loginBtn');
+        const registerBtn = document.getElementById('registerBtn');
+        const loginError = document.getElementById('loginError');
+        const registerError = document.getElementById('registerError');
+        const registerSuccess = document.getElementById('registerSuccess');
+
+        // Game Elements
+        const userDisplayName = document.getElementById('userDisplayName');
+        const userBalance = document.getElementById('userBalance');
+        const userStatus = document.getElementById('userStatus');
+        const currentAmount = document.getElementById('currentAmount');
+        const currentKing = document.getElementById('currentKing');
+        const bidAmount = document.getElementById('bidAmount');
+        const bidBtn = document.getElementById('bidBtn');
+        const bidTitle = document.getElementById('bidTitle');
+        const bidInfo = document.getElementById('bidInfo');
+        const bidError = document.getElementById('bidError');
+        const bidSuccess = document.getElementById('bidSuccess');
+
+        // Animation functions
+        function createParticles() {
+            const particleCount = 30;
+            particles.innerHTML = '';
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 2 + 's';
+                particle.style.animationDuration = (2 + Math.random() * 3) + 's';
+                particles.appendChild(particle);
+                
+                setTimeout(() => {
+                    particle.classList.add('active');
+                }, i * 50);
+            }
+        }
+
+        function triggerDestronamiento(newKingName, newAmount) {
+            console.log('Triggering destronamiento animation for:', newKingName);
+            
+            // 1. Lightning effect
+            lightningOverlay.classList.add('active');
+            
+            // 2. Destroy current crown
+            mainCrown.classList.add('destroying');
+            
+            setTimeout(() => {
+                // 3. Remove lightning
+                lightningOverlay.classList.remove('active');
+                
+                // 4. Show coronation overlay with data
+                coronationUsername.textContent = newKingName;
+                coronationAmount.textContent = '$' + newAmount.toFixed(2);
+                coronationOverlay.classList.add('active');
+                
+                // 5. Create particles
+                createParticles();
+                
+                // 6. Emerge new crown
+                mainCrown.classList.remove('destroying');
+                mainCrown.classList.add('emerging');
+                
+                console.log('Coronation overlay should be visible now');
+                
+            }, 600);
+            
+            setTimeout(() => {
+                // 7. Clean up after animation
+                coronationOverlay.classList.remove('active');
+                mainCrown.classList.remove('emerging');
+                console.log('Animation completed');
+            }, 4000); // Increased duration
+        }
+
+        // Utility Functions
+        function showError(element, message) {
+            element.textContent = message;
+            element.style.display = 'block';
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, 5000);
+        }
+
+        function showSuccess(element, message) {
+            element.textContent = message;
+            element.style.display = 'block';
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, 5000);
+        }
+
+        function setLoadingState(isLoading) {
+            const container = document.querySelector('.game-container');
+            if (isLoading) {
+                container.classList.add('loading');
+            } else {
+                container.classList.remove('loading');
+            }
+        }
+
+        // Auth Tab Switching
+        loginTab.addEventListener('click', () => {
+            loginTab.classList.add('active');
+            registerTab.classList.remove('active');
+            loginForm.classList.add('active');
+            registerForm.classList.remove('active');
+        });
+
+        registerTab.addEventListener('click', () => {
+            registerTab.classList.add('active');
+            loginTab.classList.remove('active');
+            registerForm.classList.add('active');
+            loginForm.classList.remove('active');
+        });
+
+        // Authentication Functions
+        async function loginUser(email, password) {
+            try {
+                loginBtn.disabled = true;
+                loginBtn.textContent = 'Iniciando...';
+                
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                
+            } catch (error) {
+                console.error('Error en login:', error);
+                let errorMessage = 'Error al iniciar sesión';
+                
+                switch (error.code) {
+                    case 'auth/user-not-found':
+                        errorMessage = 'Usuario no encontrado';
+                        break;
+                    case 'auth/wrong-password':
+                        errorMessage = 'Contraseña incorrecta';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = 'Email inválido';
+                        break;
+                }
+                
+                showError(loginError, errorMessage);
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Iniciar Sesión';
+            }
+        }
+
+        async function registerUser(username, email, password, passwordConfirm) {
+            // Validaciones
+            if (password !== passwordConfirm) {
+                showError(registerError, 'Las contraseñas no coinciden');
+                return;
+            }
+
+            if (password.length < 6) {
+                showError(registerError, 'La contraseña debe tener al menos 6 caracteres');
+                return;
+            }
+
+            if (username.length < 3) {
+                showError(registerError, 'El nombre de usuario debe tener al menos 3 caracteres');
+                return;
+            }
+
+            try {
+                registerBtn.disabled = true;
+                registerBtn.textContent = 'Registrando...';
+
+                // Crear usuario en Firebase Auth
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+
+                // Crear documento del usuario en Firestore
+                await db.collection('users').doc(user.uid).set({
+                    username: username,
+                    email: email,
+                    totalInvested: 0,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    stats: {
+                        timesAsKing: 0,
+                        totalTimeAsKing: 0,
+                        longestReign: 0
+                    }
+                });
+
+                showSuccess(registerSuccess, '¡Registro exitoso! Iniciando sesión...');
+                
+            } catch (error) {
+                console.error('Error en registro:', error);
+                let errorMessage = 'Error al registrarse';
+                
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        errorMessage = 'Este email ya está registrado';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = 'Email inválido';
+                        break;
+                    case 'auth/weak-password':
+                        errorMessage = 'Contraseña muy débil';
+                        break;
+                }
+                
+                showError(registerError, errorMessage);
+            } finally {
+                registerBtn.disabled = false;
+                registerBtn.textContent = 'Registrarse';
+            }
+        }
+
+        // Event Listeners
+        loginBtn.addEventListener('click', () => {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (email && password) {
+                loginUser(email, password);
+            } else {
+                showError(loginError, 'Por favor completa todos los campos');
+            }
+        });
+
+        registerBtn.addEventListener('click', () => {
+            const username = document.getElementById('registerUsername').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const passwordConfirm = document.getElementById('registerPasswordConfirm').value;
+            
+            if (username && email && password && passwordConfirm) {
+                registerUser(username, email, password, passwordConfirm);
+            } else {
+                showError(registerError, 'Por favor completa todos los campos');
+            }
+        });
+
+        logoutBtn.addEventListener('click', () => {
+            auth.signOut();
+        });
+
+        // Firebase Auth State Observer
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                currentUser = user;
+                
+                await loadUserData();
+                
+                authContainer.style.display = 'none';
+                gameContainer.classList.add('show');
+                logoutBtn.style.display = 'block';
+                
+                await loadGameData();
+                
+                cardElement.mount('#card-element');
+                
+                cardElement.on('change', ({error}) => {
+                    const displayError = document.getElementById('card-errors');
+                    if (error) {
+                        displayError.textContent = error.message;
+                        displayError.style.display = 'block';
+                    } else {
+                        displayError.textContent = '';
+                        displayError.style.display = 'none';
+                    }
+                });
+                
+            } else {
+                currentUser = null;
+                currentUserData = null;
+                
+                if (cardElement) {
+                    cardElement.unmount();
+                }
+                
+                authContainer.style.display = 'block';
+                gameContainer.classList.remove('show');
+                logoutBtn.style.display = 'none';
+            }
+        });
+
+        // Load User Data
+        async function loadUserData() {
+            if (!currentUser) return;
+            
+            try {
+                const userDoc = await db.collection('users').doc(currentUser.uid).get();
+                if (userDoc.exists) {
+                    currentUserData = userDoc.data();
+                    updateUserUI();
+                }
+            } catch (error) {
+                console.error('Error cargando datos del usuario:', error);
+            }
+        }
+
+        // Load Game Data
+        async function loadGameData() {
+            try {
+                const kingDoc = await db.collection('current').doc('king').get();
+                if (kingDoc.exists) {
+                    currentKingData = kingDoc.data();
+                    previousKingId = currentKingData.userId;
+                } else {
+                    currentKingData = {
+                        username: 'ReyInicial',
+                        amount: 0.01,
+                        userId: 'default'
+                    };
+                    previousKingId = 'default';
+                }
+                updateGameUI();
+            } catch (error) {
+                console.error('Error cargando datos del juego:', error);
+            }
+        }
+
+        // Update UI Functions
+        function updateUserUI() {
+            if (!currentUserData) return;
+            
+            userDisplayName.textContent = currentUserData.username;
+            userBalance.textContent = `${(currentUserData.totalInvested || 0).toFixed(2)}`;
+            
+            const userInvestment = currentUserData.totalInvested || 0;
+            const isKing = currentKingData && currentKingData.userId === currentUser.uid;
+            
+            userStatus.className = 'stat-value';
+            userInfoCard.classList.remove('king');
+            
+            if (isKing) {
+                userStatus.textContent = '👑 REY';
+                userStatus.classList.add('status-king');
+                userInfoCard.classList.add('king');
+            } else if (userInvestment > 0) {
+                userStatus.textContent = '💰 Inversor';
+                userStatus.classList.add('status-investor');
+            } else {
+                userStatus.textContent = '🆕 Nuevo';
+                userStatus.classList.add('status-new');
+            }
+        }
+
+        function updateGameUI() {
+            if (!currentKingData || !currentUserData) return;
+            
+            currentAmount.textContent = `${currentKingData.amount.toFixed(2)}`;
+            currentKing.textContent = currentKingData.username;
+            
+            const userInvestment = currentUserData.totalInvested || 0;
+            const kingAmount = currentKingData.amount;
+            
+            if (currentKingData.userId === currentUser.uid) {
+                bidTitle.textContent = '🎉 ¡Eres el Rey actual!';
+                bidInfo.innerHTML = `<strong>¡Mantén tu corona!</strong> Otros necesitan pagar más de ${kingAmount.toFixed(2)} para destronarte.`;
+                bidBtn.style.display = 'none';
+                bidAmount.style.display = 'none';
+                document.querySelector('.card-container').style.display = 'none';
+            } else {
+                bidTitle.textContent = '¡Destrónalo y conviértete en Rey!';
+                
+                // FIXED: Proper calculation for required amount
+                const requiredTotal = kingAmount + 0.01;
+                const requiredToPay = Math.max(0.01, requiredTotal - userInvestment);
+                
+                bidInfo.innerHTML = `
+                    <strong>Tu inversión:</strong> ${userInvestment.toFixed(2)}<br>
+                    <strong>Para ser rey necesitas:</strong> ${requiredTotal.toFixed(2)} total<br>
+                    <strong>Debes pagar:</strong> ${requiredToPay.toFixed(2)}
+                `;
+                
+                // FIXED: Set minimum properly
+                bidAmount.min = (0.01).toFixed(2);
+                bidAmount.placeholder = requiredToPay.toFixed(2);
+                bidAmount.value = requiredToPay.toFixed(2);
+                
+                bidBtn.style.display = 'block';
+                bidAmount.style.display = 'block';
+                document.querySelector('.card-container').style.display = 'block';
+            }
+        }
+
+        // FIXED: Bid Function with proper validation
+        bidBtn.addEventListener('click', async () => {
+            const amount = parseFloat(bidAmount.value);
+            const userInvestment = currentUserData ? currentUserData.totalInvested || 0 : 0;
+            const kingAmount = currentKingData.amount;
+            const requiredTotal = kingAmount + 0.01;
+            const requiredToPay = Math.max(0.01, requiredTotal - userInvestment);
+            
+            console.log('Bid validation:', {
+                amount,
+                userInvestment,
+                kingAmount,
+                requiredTotal,
+                requiredToPay
+            });
+            
+            // FIXED: Proper validation with tolerance for floating point precision
+            if (!amount || amount < (requiredToPay - 0.001)) {
+                showError(bidError, `Debes pujar al menos ${requiredToPay.toFixed(2)}`);
+                return;
+            }
+            
+            // Additional validation
+            if (amount < 0.01) {
+                showError(bidError, 'La cantidad mínima es $0.01');
+                return;
+            }
+            
+            try {
+                setLoadingState(true);
+                bidBtn.disabled = true;
+                bidBtn.textContent = 'Procesando...';
+                
+                const idToken = await currentUser.getIdToken();
+                console.log('Creating payment intent with amount:', amount);
+                
+                const response = await fetch('/.netlify/functions/create-payment-intent', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        amount: amount,
+                        idToken: idToken
+                    })
+                });
+                
+                const data = await response.json();
+                console.log('Payment intent response:', data);
+                
+                if (!response.ok) {
+                    throw new Error(data.error || `Server error: ${response.status}`);
+                }
+                
+                const { error, paymentIntent } = await stripe.confirmCardPayment(data.clientSecret, {
+                    payment_method: {
+                        card: cardElement,
+                        billing_details: {
+                            name: currentUserData.username,
+                            email: currentUserData.email,
+                        },
+                    }
+                });
+                
+                if (error) {
+                    throw new Error(error.message);
+                }
+                
+                console.log('Payment successful:', paymentIntent.status);
+                
+                // Trigger animation if will become king
+                if (data.willBecomeKing) {
+                    setTimeout(() => {
+                        triggerDestronamiento(currentUserData.username, data.newTotalInvestment);
+                    }, 1500);
+                }
+                
+                showSuccess(bidSuccess, `¡Pago exitoso! Has pagado ${amount.toFixed(2)}. ${data.willBecomeKing ? '¡Eres el nuevo rey!' : 'Tu saldo se ha actualizado.'}`);
+                bidAmount.value = '';
+                
+            } catch (error) {
+                console.error('Error en la puja:', error);
+                showError(bidError, `Error: ${error.message}`);
+            } finally {
+                setLoadingState(false);
+                bidBtn.disabled = false;
+                bidBtn.textContent = '💰 Hacer Puja';
+            }
+        });
+
+        // Real-time listener for game state
+        db.collection('current').doc('king').onSnapshot((doc) => {
+            if (doc.exists && currentUser) {
+                const newKingData = doc.data();
+                
+                // Check if someone else became king
+                if (previousKingId && 
+                    previousKingId !== newKingData.userId && 
+                    newKingData.userId !== currentUser.uid) {
+                    
+                    triggerDestronamiento(newKingData.username, newKingData.amount);
+                }
+                
+                currentKingData = newKingData;
+                previousKingId = newKingData.userId;
+                updateGameUI();
+            }
+        });
+
+        // Real-time listener for user data
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                db.collection('users').doc(user.uid).onSnapshot((doc) => {
+                    if (doc.exists) {
+                        const newUserData = doc.data();
+                        currentUserData = newUserData;
+                        updateUserUI();
+                        updateGameUI();
+                    }
+                });
+            }
+        });
+
+        // Enter key listeners
+        document.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                if (loginForm.classList.contains('active')) {
+                    loginBtn.click();
+                } else if (registerForm.classList.contains('active')) {
+                    registerBtn.click();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
